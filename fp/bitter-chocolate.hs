@@ -16,7 +16,7 @@ choices = [[[win r1 r2 r3 | r3 <- [0..25]] | r2 <- [0..25]] | r1 <- [0..25]] whe
   win 1 1 1 = True
   win x y z = moveRow1 || moveRow2 || moveRow3 where
     moveRow1 = any not [choices !! x' !! min x' y  !! min x' z | x' <- [1..x-1]]
-    -- ^ One move on row1, look for False move so oponenet loses
+    -- ^ One move on row1, look for False move so opponent loses
     moveRow2 = any not [choices !! x !! y' !! min y' z | y' <- [0..y-1]]
     -- ^ One move on row3
     moveRow3 = any not [choices !! x !! y !! z' | z' <- [0..z-1]]
