@@ -8,6 +8,7 @@
 
 import           Control.Applicative (liftA)
 import           Control.Monad       (forM_, guard)
+import qualified Data.HashMap.Strict as HM
 import           System.IO
 
 data Dice = Dice {
@@ -47,10 +48,10 @@ sums m n = [memoizedSum !! m !! n !! t !! f !! l | Dice t f l <- validDices]
 
 main :: IO ()
 main = do
-  -- withFile "dice-path_input3.txt" ReadMode $ \handle -> do
-    -- t <- liftA (\x -> read x :: Int) (hGetLine handle)
-    t <- readLn
+  withFile "dice-path_input3.txt" ReadMode $ \handle -> do
+    t <- liftA (\x -> read x :: Int) (hGetLine handle)
+    -- t <- readLn
     forM_ [1..t] $ \_ -> do
-      -- [m, n] <- liftA (map (\x -> read x :: Int) . words) (hGetLine handle)
-      [m, n] <- liftA (map (\x -> read x :: Int) . words) getLine
+      [m, n] <- liftA (map (\x -> read x :: Int) . words) (hGetLine handle)
+      -- [m, n] <- liftA (map (\x -> read x :: Int) . words) getLine
       print . maximum $ sums m n
