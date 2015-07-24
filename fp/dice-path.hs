@@ -8,7 +8,6 @@
 
 import           Control.Applicative (liftA)
 import           Control.Monad       (forM_, guard)
-import qualified Data.HashMap.Strict as HM
 import           System.IO
 
 data Dice = Dice {

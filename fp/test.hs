@@ -1,29 +1,30 @@
-import System.IO
+import Control.Monad
+import Data.Array
 
-count = [[[[[getCount mm nn tt ll ff | ff <- [0..6]] | ll <- [0..6]] | tt <- [0..6]] | nn <- [0..]] | mm <- [0..]]
-    where getCount 0 _ _ _ _ = 0
-          getCount _ 0 _ _ _ = 0
-          getCount 1 1 1 3 2 = 1
-          getCount 1 1 _ _ _ = 0
-          getCount m n t l f = let
-            c1 = count !! (m - 1) !! n !! f !! l !! (7 - t)
-            c2 = count !! m !! (n - 1) !! (7 - l) !! t !! f
-            p1 = if c1 > 0 then c1 + t else 0
-            p2 = if c2 > 0 then c2 + t else 0
-            in max p1 p2
-                    
-calc :: Int -> Int -> Int
-calc m n = maximum [if check t l f then count !! m !! n !! t !! l !! f else 0 | t <- [1..6], l <- [1..6], f <- [1..6]]
-          where check t l f = let 
-                    tt = min (7 - t) t
-                    ll = min (7 - l) l
-                    ff = min (7 - f) f
-                    in if tt + ll + ff == 6 && tt * ll * ff == 6 then True else False
-   
-solve :: [[Int]] -> [Int]
-solve ([t] : arr) = map (\[m, n] -> calc m n) arr
+limit = 100
 
-main :: IO ()
-main = do 
-  withFile "dice-path_input3.txt" ReadMode $ \handle -> do
-    hGetContents handle >>= mapM_ putStrLn . map show . solve . map (map read . words) . lines
+table0 = listArray ((1, 1, 0), (limit, limit, 1)) $
+    map f [(n, m, d) | n <- [1..limit], m <- [1..limit], d <- [0, 1]] where
+        f (1, 1, 0) = 1
+        f (1, 1, 1) = 0
+        f (1, m, 0) = 1
+        f (n, 1, 1) = 1
+        f _ = 0
+
+transition prev = next where
+    next = listArray ((1, 1, 0), (limit, limit, 1)) $
+        map f [(n, m, d) | n <- [1..limit], m <- [1..limit], d <- [0, 1]] where
+            f (1, _, _) = 0
+            f (_, 1, _) = 0
+            f (n, m, 0) = (next ! (n, m-1, 0) + prev ! (n, m-1, 1)) `mod` p
+            f (n, m, 1) = (next ! (n-1, m, 1) + prev ! (n-1, m, 0)) `mod` p
+
+tables = iterate transition table0
+
+p = 1000000007
+
+main = do
+    t <- readLn
+    replicateM_ t $ do
+        [n, m, k] <- liftM (map read . words) getLine
+        print $ foldl (\acc t -> (acc + t ! (n, m, 0) + t ! (n, m, 1)) `mod` p) 0 $ take (k+1) tables
